@@ -5,10 +5,10 @@
 }
 
 /* ::view-transition-group(root) {
-    animation-duration: 3s;
-}
+    animation-duration: 1s;
+} */
 
-::view-transition-new(root) {
+/* ::view-transition-new(root) {
     animation-duration: 5s;
 } */
 
@@ -490,9 +490,11 @@
         background-size: cover;
         background-position: center;
 
-        animation: fade-out both;
-        animation-timeline: view();
-        animation-range-start: exit;
+        @media (width > 600px) {
+            animation: fade-out both;
+            animation-timeline: view();
+            animation-range-start: exit;
+        }
     }
 
     .mushroom-guide {
