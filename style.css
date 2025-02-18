@@ -1,5 +1,17 @@
 /* @layer reset, base, layout, components; */
 
+@view-transition {
+    navigation: auto;
+}
+
+/* ::view-transition-group(root) {
+    animation-duration: 3s;
+}
+
+::view-transition-new(root) {
+    animation-duration: 5s;
+} */
+
 @layer reset {
 
     *,
@@ -81,9 +93,16 @@
         --clr-gray-100: hsl(0, 2%, 79%);
         --clr-brand-400: hsl(25, 88%, 75%);
         --clr-brand-500: hsl(25, 88%, 66%);
+        --clr-green-300: hsl(143, 19%, 69%);
         --clr-green-400: hsl(143, 19%, 49%);
         --clr-green-500: hsl(143, 38%, 37%);
         --clr-green-600: hsl(145, 29%, 19%);
+
+        --clr-brown-100: hsl(10, 5%, 90%);
+        --clr-brown-200: hsl(9, 7%, 85%);
+        --clr-brown-300: hsl(9, 8%, 75%);
+        --clr-brown-400: hsl(0, 6%, 60%);
+
         --clr-brown-500: hsl(10, 5%, 25%);
         --clr-brown-600: hsl(9, 7%, 21%);
         --clr-brown-700: hsl(9, 8%, 16%);
@@ -148,6 +167,18 @@
         --border-radius-1: 0.25rem;
         --border-radius-2: 0.5rem;
         --border-radius-3: 0.75rem;
+
+        /* @media (prefers-color-scheme: light) {
+            --text-main: var(--clr-brown-700);
+            --text-high-contrast: var(--clr-brown-900);
+
+            --backgorund-accent-dark: var(--clr-green-300);
+            --background-extra-light: var(--clr-brown-100);
+            --background-light: var(--clr-brown-200);
+            --background-main: var(--clr-brown-300);
+            --background-dark: var(--clr-brown-400);
+            --background-extra-dark: var(--clr-brown-500);
+        } */
     }
 
     html {
@@ -223,12 +254,12 @@
         justify-items: var(--grid-flow-justification, start);
     }
 
-    .grid-auto-fit {
-        --grid-auto-fit-min-column-size: 250px;
+    .grid-auto-fill {
+        --grid-auto-fill-min-column-size: 250px;
         display: grid;
         gap: 1rem;
-        grid-template-columns: repeat(auto-fit,
-                minmax(min(var(--grid-auto-fit-min-column-size, 450px), 100%), 1fr));
+        grid-template-columns: repeat(auto-fill,
+                minmax(min(var(--grid-auto-fill-min-column-size, 450px), 100%), 1fr));
     }
 
     .equal-columns {
@@ -306,6 +337,9 @@
 
     .site-header {
         padding-block: 1rem;
+
+        overflow-x: clip;
+        position: relative;
     }
 
     .site-header__inner {
@@ -342,32 +376,55 @@
         }
 
         @media (width < 760px) {
-            display: none;
-            position: absolute;
-            z-index: 10;
-            top: 0;
-            right: 0;
-            font-size: var(--font-size-lg);
-            font-weight: 700;
-            font-family: var(--ff-heading);
-            background-color: var(--background-accent-main);
-            padding: 2rem;
-            border-radius: 0 0 0 var(--border-radius-3);
+            & {
+                display: none;
+                /* hamburger menu animation */
+                opacity: 0;
+                transition: opacity .3s, display .3s, translate .3s;
+                transition-behavior: allow-discrete;
+                translate: 100% 0;
+                /* end animation */
 
-            ul {
-                gap: 0;
-                flex-direction: column;
-            }
+                position: absolute;
+                z-index: 10;
+                top: 0;
+                right: 0;
+                font-size: var(--font-size-lg);
+                font-weight: 700;
+                font-family: var(--ff-heading);
+                background-color: var(--background-accent-main);
+                padding: 2rem;
+                border-radius: 0 0 0 var(--border-radius-3);
 
-            li+li {
-                border-top: 2px solid var(--background-accent-light);
-                margin-block-start: 1.5rem;
-                padding-block-start: 1.5rem;
-            }
+                ul {
+                    gap: 0;
+                    flex-direction: column;
+                }
 
-            /* [aria-expanded='true']~& {
+                li {
+                    --delay: .4s;
+                    translate: 50%;
+                    transition: translate .4s var(--delay), opacity .4s var(--delay);
+                }
+
+                li:nth-child(2) {
+                    --delay: .5s
+                }
+
+                li:nth-child(3) {
+                    --delay: .6s
+                }
+
+                li+li {
+                    border-top: 2px solid var(--background-accent-light);
+                    margin-block-start: 1.5rem;
+                    padding-block-start: 1.5rem;
+                }
+
+                /* [aria-expanded='true']~& {
                 display: block;
             } */
+            }
         }
     }
 
@@ -376,8 +433,25 @@
             display: block;
         }
 
-        [aria-expanded='true']+.primary-navigation {
+        [aria-expanded='true']~.primary-navigation {
             display: block;
+            opacity: 1;
+            translate: 0 0;
+
+            @starting-style {
+                opacity: 0;
+                translate: 0 -100%;
+            }
+
+            li {
+                translate: 0 0;
+                opacity: 1;
+
+                @starting-style {
+                    opacity: 0;
+                    translate: 50% 0;
+                }
+            }
         }
     }
 
@@ -410,10 +484,15 @@
     .hero {
         text-align: center;
         font-size: var(--font-size-md);
-        color: var(--text-high-contrast);
+        /* color: var(--text-high-contrast); */
+        color: light-dark(var(--clr-brown-100), var(--text-high-contrast));
         background-image: url(/assets/hero.webp);
         background-size: cover;
         background-position: center;
+
+        animation: fade-out both;
+        animation-timeline: view();
+        animation-range-start: exit;
     }
 
     .mushroom-guide {
@@ -581,6 +660,15 @@
 }
 
 @layer utilities {
+    [hidden] {
+        display: none;
+    }
+
+    .resizing * {
+        transition: none;
+        animation-play-state: paused;
+    }
+
     .visually-hidden {
         clip: rect(0 0 0 0);
         clip-path: inset(50%);
@@ -645,5 +733,27 @@
 
     .font-size-lg {
         font-size: var(--font-size-lg);
+    }
+}
+
+@layer animations {
+    @keyframes fade-out {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
     }
 }
